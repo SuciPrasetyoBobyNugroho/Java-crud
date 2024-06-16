@@ -13,31 +13,31 @@ import com.example.models.repository.ProductRepo;
 @Service
 @Transactional
 public class ProductService {
-    
+
     @Autowired
     private ProductRepo productRepo;
 
-    public Product create(Product product){
+    public Product create(Product product) {
         return productRepo.save(product);
     }
 
-    public String findOne(Long id){
-       Optional<Product> product = productRepo.findById(id);
-       if(!product.isPresent()){
-        return "tidak di temukan";
-       }
-        return product.get().toString();
+    public Product findOne(Long id) {
+        Optional<Product> product = productRepo.findById(id);
+        if (!product.isPresent()) {
+            return null;
+        }
+        return product.get();
     }
 
-    public Iterable<Product> findAll(){
+    public Iterable<Product> findAll() {
         return productRepo.findAll();
     }
 
-    public void removeOne(Long id){
+    public void removeOne(Long id) {
         productRepo.deleteById(id);
     }
 
-    public List<Product> findByName(String name){
+    public List<Product> findByName(String name) {
         return productRepo.findByNameContains(name);
     }
 }
