@@ -3,6 +3,7 @@ package com.example.controllers;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.dto.ResponseData;
 import com.example.models.entities.Product;
+import com.example.models.entities.Supplier;
 import com.example.services.ProductService;
 
 import jakarta.validation.Valid;
@@ -29,6 +31,9 @@ public class ProductController {
 
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     @PostMapping
     public ResponseEntity<ResponseData<Product>> create(@Valid @RequestBody Product product, Errors errors) {
@@ -102,14 +107,31 @@ public class ProductController {
         }
     }
 
-    @PutMapping
-    public ResponseEntity<ResponseData<Product>> update(@Valid @RequestBody Product product, Errors errors) {
+    @PutMapping("/{id}")
+    public ResponseEntity<ResponseData<Product>> update(@PathVariable("id") Long id,
+            @Valid @RequestBody Product product, Errors errors) {
 
         ResponseData<Product> responseData = new ResponseData<>();
 
         try {
+            Product existingProduct = productService.findOne(id);
+            if (existingProduct == null) {
+                responseData.setStatus(false);
+                responseData.getMessages().add("product not found");
+                responseData.setPayload(null);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseData);
+            }
+
+            // Gunakan ModelMapper untuk menyalin nilai dari 'product' ke 'existingProduct'
+            modelMapper.map(product, existingProduct);
+
+            // Pastikan ID produk tetap sama dengan ID yang diambil dari path variable
+            existingProduct.setId(id);
+
+            Product updaProduct = productService.create(existingProduct);
+
             responseData.setStatus(true);
-            responseData.setPayload(productService.create(product));
+            responseData.setPayload(updaProduct);
             return ResponseEntity.ok(responseData);
         } catch (Exception e) {
             for (ObjectError error : errors.getAllErrors()) {
@@ -146,6 +168,13 @@ public class ProductController {
             map.put("error", e.getMessage());
             return new ResponseEntity<>(map, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    // menambahkan data dengan relasi antar entity product dan supplier (menambahkan
+    // data supplier ke product)
+    @PostMapping("/{id}")
+    public void addSupplier(@RequestBody Supplier supplier, @PathVariable("id") Long productId) {
+        productService.addSupplier(supplier, productId);
     }
 
 }

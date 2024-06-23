@@ -3,6 +3,10 @@ package com.example.models.entities;
 import java.io.Serializable;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -13,6 +17,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tbl_suppliers")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Supplier implements Serializable {
 
     @Id
@@ -29,6 +34,7 @@ public class Supplier implements Serializable {
     private String email;
 
     @ManyToMany(mappedBy = "suppliers")
+//@JsonBackReference // agar tidak terjadi infinity loop
     private Set<Product> products;
 
     public Long getId() {

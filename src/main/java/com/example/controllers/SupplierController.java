@@ -69,8 +69,9 @@ public class SupplierController {
         return supplierService.findOneSupplier(id);
     }
 
-    @PutMapping
-    public ResponseEntity<ResponseData<Supplier>> updateSupplier(@Valid @RequestBody SupplierDto supplierDto,
+    @PutMapping("/{id}")
+    public ResponseEntity<ResponseData<Supplier>> updateSupplier(@PathVariable("id") Long id,
+            @Valid @RequestBody SupplierDto supplierDto,
             Errors errors) {
 
         ResponseData<Supplier> responseData = new ResponseData<>();
@@ -82,11 +83,23 @@ public class SupplierController {
             responseData.setPayload(null);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseData);
         }
+        Supplier existingSupplier = supplierService.findOneSupplier(id);
+        if (existingSupplier == null) {
+            responseData.setStatus(false);
+            responseData.getMessages().add("Supplier not found");
+            responseData.setPayload(null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseData);
+        }
 
-        Supplier supplier = modelMapper.map(supplierDto, Supplier.class);
+        // mapping dengan library/dependencies model mapper
+        modelMapper.map(supplierDto, existingSupplier);
+
+        // setelah id di temukan data akan di update (service sama dengan create
+        // data/POST)
+        Supplier updateSupplier = supplierService.createSupplier(existingSupplier);
 
         responseData.setStatus(true);
-        responseData.setPayload(supplierService.createSupplier(supplier));
+        responseData.setPayload(updateSupplier);
         return ResponseEntity.ok(responseData);
     }
 
@@ -94,5 +107,5 @@ public class SupplierController {
     public void removeOneSupplier(@PathVariable("id") Long id) {
         supplierService.removeOneSupplier(id);
     }
-    
+
 }

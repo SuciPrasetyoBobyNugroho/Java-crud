@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+
 import com.example.models.entities.Supplier;
 import com.example.models.repository.SupplierRepo;
 
@@ -36,4 +37,5 @@ public class SupplierService {
     public void removeOneSupplier(Long id) {
         supplierRepo.deleteById(id);
     }
+
 }

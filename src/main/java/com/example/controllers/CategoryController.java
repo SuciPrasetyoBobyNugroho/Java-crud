@@ -48,6 +48,7 @@ public class CategoryController {
         }
         Category category = modelMapper.map(categoryDto, Category.class);
         responseData.setStatus(true);
+
         responseData.setPayload(categoryService.createCategory(category));
         return ResponseEntity.ok(responseData);
     }
@@ -62,8 +63,9 @@ public class CategoryController {
         return categoryService.findOneCategory(id);
     }
 
-    @PutMapping
-    public ResponseEntity<ResponseData<Category>> updateCategory(@Valid @RequestBody CategoryDto categoryDto,
+    @PutMapping("/{id}")
+    public ResponseEntity<ResponseData<Category>> updateCategory(@PathVariable("id") Long id,
+            @Valid @RequestBody CategoryDto categoryDto,
             Errors errors) {
 
         ResponseData<Category> responseData = new ResponseData<>();
@@ -76,9 +78,23 @@ public class CategoryController {
             responseData.setPayload(null);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseData);
         }
-        Category category = modelMapper.map(categoryDto, Category.class);
+
+        Category existingCategory = categoryService.findOneCategory(id);
+        if (existingCategory == null) {
+            responseData.setStatus(false);
+            responseData.getMessages().add("Category not found");
+            responseData.setPayload(null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseData);
+        }
+
+        // mapping dengan library/dependencies model mapper
+        modelMapper.map(categoryDto, existingCategory);
+
+        // setelah id di temukan data akan di update (service sama dengan create data/POST)
+        Category updatedCategory = categoryService.createCategory(existingCategory);
+
         responseData.setStatus(true);
-        responseData.setPayload(categoryService.createCategory(category));
+        responseData.setPayload(updatedCategory);
         return ResponseEntity.ok(responseData);
     }
 
