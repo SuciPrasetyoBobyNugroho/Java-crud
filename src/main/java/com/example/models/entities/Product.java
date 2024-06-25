@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
@@ -46,6 +47,7 @@ public class Product implements Serializable {
 
     @ManyToMany
     @JoinTable(name = "tbl_product_supplier", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "supplier_id"))
+    //@JsonIgnore //menghasilkan struktur JSON yang lebih mudah dibaca untuk debugging atau keperluan lainnya
    //@JsonManagedReference //agar tidak terjadi infinity loop
     private Set<Supplier> suppliers;
 

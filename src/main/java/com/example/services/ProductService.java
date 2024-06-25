@@ -1,5 +1,6 @@
 package com.example.services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,6 +18,9 @@ public class ProductService {
 
     @Autowired
     private ProductRepo productRepo;
+
+    @Autowired
+    private SupplierService supplierService;
 
     public Product create(Product product) {
         return productRepo.save(product);
@@ -38,11 +42,6 @@ public class ProductService {
         productRepo.deleteById(id);
     }
 
-    public List<Product> findByName(String name) {
-        return productRepo.findByNameContains(name);
-    }
-
-
     // menambahkan data dengan relasi antar entity product dan supplier (menambahkan
     // data supplier ke product)
 
@@ -54,4 +53,33 @@ public class ProductService {
         product.getSuppliers().add(supplier);
         create(product);
     }
+
+    // mencari nama product dengan nama lengkap
+    // mencari 1 data dengan nama lengkap
+    public Product findProductName(String name) {
+        return productRepo.findProductByName(name);
+    }
+
+    // mencari nama product yang mengandung nama yg di cari (tidak perlu nama
+    // lengkap)
+    // mencari lebih dari 1 data yang mengandung nama yg di cari
+    public List<Product> findProductNameLike(String name) {
+        return productRepo.findProductByNameLike("%" + name + "%");
+    }
+
+    // mencari data product dengan keyword id category
+    public List<Product> findProductByCategory(Long categoryId) {
+        return productRepo.findProductByCategory(categoryId);
+    }
+
+    // mencari data product berdasarkan supplier
+    public List<Product> findProductBySupplier(Long supplierId) {
+        Supplier supplier = supplierService.findOneSupplier(supplierId); // mencari supplier berdasarkan id
+        if (supplier == null) {
+            return new ArrayList<Product>();
+        }
+        return productRepo.findProductBySupplier(supplier); // mengembalikan daftar produk yang terkait dengan supplier
+                                                             // yang diberikan
+    }
+
 }

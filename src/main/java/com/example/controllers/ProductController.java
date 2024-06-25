@@ -1,6 +1,7 @@
 package com.example.controllers;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.modelmapper.ModelMapper;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.dto.ResponseData;
+import com.example.dto.SearchData;
 import com.example.models.entities.Product;
 import com.example.models.entities.Supplier;
 import com.example.services.ProductService;
@@ -177,4 +179,34 @@ public class ProductController {
         productService.addSupplier(supplier, productId);
     }
 
+    // untuk mencari data product dengan nama lengkap
+    // menggunakan postmapping agar kita bisa mencari nama dengan body request
+    // (bukan dari url seperti getmapping)
+    // mencari 1 data dengan nama lengkap
+    @PostMapping("/search/name")
+    public Product getProductByName(@RequestBody SearchData searchData) {
+        return productService.findProductName(searchData.getSearchKey());
+    }
+
+    // untuk mencari data product yang mengandung nama yg di cari (tidak perlu nama
+    // lengkap)
+    // menggunakan postmapping agar kita bisa mencari nama dengan body request
+    // (bukan dari url seperti getmapping)
+    // mencari lebih dari 1 data yang mengandung nama yg di cari
+    @PostMapping("/search/name/like")
+    public List<Product> getProductByNameLike(@RequestBody SearchData searchData) {
+        return productService.findProductNameLike(searchData.getSearchKey());
+    }
+
+    // mencari data product dengan keyword id category
+    @GetMapping("/search/name/{categoryId}")
+    public List<Product> getProductByCategory(@PathVariable("categoryId") Long categoryId) {
+        return productService.findProductByCategory(categoryId);
+    }
+
+    // mencari data product berdasrkan supplier
+    @GetMapping("/search/name/supplier/{supplierId}")
+    public List<Product> getProductBySupplier(@PathVariable("supplierId") Long supplierId) {
+        return productService.findProductBySupplier(supplierId);
+    }
 }

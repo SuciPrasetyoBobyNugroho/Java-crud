@@ -5,6 +5,7 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import jakarta.persistence.Column;
@@ -34,6 +35,7 @@ public class Supplier implements Serializable {
     private String email;
 
     @ManyToMany(mappedBy = "suppliers")
+   // @JsonIgnore //menghasilkan struktur JSON yang lebih mudah dibaca untuk debugging atau keperluan lainnya
 //@JsonBackReference // agar tidak terjadi infinity loop
     private Set<Product> products;
 
