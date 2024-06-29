@@ -1,5 +1,7 @@
 package com.example.controllers;
 
+import java.util.List;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.dto.ResponseData;
+import com.example.dto.SearchData;
 import com.example.dto.SupplierDto;
 import com.example.models.entities.Supplier;
 import com.example.services.SupplierService;
@@ -108,4 +111,28 @@ public class SupplierController {
         supplierService.removeOneSupplier(id);
     }
 
+    @PostMapping("/search/byemail")
+    public Supplier findByEmail(@RequestBody SearchData searchData) {
+        return supplierService.findByEmail(searchData.getSearchKey());
+    }
+
+    @PostMapping("/search/byname")
+    public List<Supplier> findByNameContains(@RequestBody SearchData searchData) {
+        return supplierService.findByNameContains(searchData.getSearchKey());
+    }
+
+    @PostMapping("/search/namestartingwith")
+    public List<Supplier> findByNameStartingWith(@RequestBody SearchData searchData) {
+        return supplierService.findByNameStartingWith(searchData.getSearchKey());
+    }
+
+    @PostMapping("/search/nameoremail")
+    public List<Supplier> findByNameOrEmail(@RequestBody SearchData searchData) {
+        return supplierService.findByNameOrEmail(searchData.getSearchKey(), searchData.getOtherSearchKey());
+    }
+
+    @PostMapping("/search/bynamedesc")
+    public List<Supplier> findByNameOrderByIdDesc(@RequestBody SearchData searchData) {
+        return supplierService.findByNameOrderByIdDesc(searchData.getSearchKey());
+    }
 }
