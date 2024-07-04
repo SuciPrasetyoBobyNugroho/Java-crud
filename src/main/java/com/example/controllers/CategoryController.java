@@ -1,7 +1,12 @@
 package com.example.controllers;
 
+import java.util.Arrays;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
@@ -17,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.dto.CategoryDto;
 import com.example.dto.ResponseData;
+import com.example.dto.SearchData;
 import com.example.models.entities.Category;
 import com.example.services.CategoryService;
 
@@ -90,7 +96,8 @@ public class CategoryController {
         // mapping dengan library/dependencies model mapper
         modelMapper.map(categoryDto, existingCategory);
 
-        // setelah id di temukan data akan di update (service sama dengan create data/POST)
+        // setelah id di temukan data akan di update (service sama dengan create
+        // data/POST)
         Category updatedCategory = categoryService.createCategory(existingCategory);
 
         responseData.setStatus(true);
@@ -101,5 +108,37 @@ public class CategoryController {
     @DeleteMapping("/{id}")
     public void removeOneCategory(@PathVariable("id") Long id) {
         categoryService.removeOneCategory(id);
+    }
+
+    @PostMapping("/search/{size}/{page}") // untuk mencari data (size = berapa banyak data yg di cari) (page = di
+                                          // halaman berapa)
+    public Iterable<Category> findByNameContains(@RequestBody SearchData searchData, @PathVariable("size") int size,
+            @PathVariable("page") int page) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        return categoryService.findByNameContains(searchData.getSearchKey(), pageable);
+    }
+
+    // untuk mengurutkan atau sorting data ascending(kecil ke besar) dan
+    // descending(besar ke kecil)
+    @PostMapping("/search/{size}/{page}/{sort}")
+    public Iterable<Category> findByNameContains(@RequestBody SearchData searchData, @PathVariable("size") int size,
+            @PathVariable("page") int page, @PathVariable("sort") String sort) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
+        if (sort.equalsIgnoreCase("desc")) {
+            pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        }
+
+        return categoryService.findByNameContains(searchData.getSearchKey(), pageable);
+    }
+
+    @PostMapping("/batch")
+    public ResponseEntity<ResponseData<Iterable<Category>>> createBatch(@RequestBody Category[] category) {
+
+        ResponseData<Iterable<Category>> responseData = new ResponseData<>();
+        responseData.setPayload(categoryService.saveBatch(Arrays.asList(category)));
+        responseData.setStatus(true);
+        return ResponseEntity.ok(responseData);
     }
 }
