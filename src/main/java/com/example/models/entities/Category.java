@@ -11,7 +11,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tbl_categories")
-public class Category implements Serializable {
+public class Category extends BaseEntity<String> implements Serializable {
 
     @Id // Anotasi @Id digunakan untuk menandai bahwa atribut yang mengikuti anotasi ini
         // adalah primary key dari tabel yang terkait dalam basis data
